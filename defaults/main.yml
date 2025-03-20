@@ -1,0 +1,12 @@
+---
+# defaults file for deploy_tls_certs
+
+tls_src_cert_dir: /home_ansible//ssl/crt/
+tls_src_priv_dir: /home_ansible//ssl/key/
+tls_dst_cert_dir: /etc/ssl/certs/
+tls_dst_priv_dir: /etc/ssl/private/
+tls_ca_file: custom_ca.crt
+mysql_ca_file: mysql-ca.crt
+tls_sslcert_users:
+  - nagios
+

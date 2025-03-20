@@ -1,0 +1,5 @@
+---
+# handler for ubuntu ca store update
+- name: update ca store ubuntu
+  become: true
+  shell: /usr/sbin/update-ca-certificates

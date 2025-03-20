@@ -1,0 +1,22 @@
+---
+
+#- name: "add user {{ username }} to ssl-cert group if they exist (check)"
+#  command: getent passwd {{ username }}
+#  ignore_errors: yes
+#  register: user_check
+
+#- name: Debug user_check
+#  debug:
+#    var: user_check
+
+- name: "add user {{ username }} to ssl-cert group if they exist"
+  user:
+    name: "{{ username }}"
+    groups: ssl-cert
+    append: yes
+  
+
+
+#when: lookup('pipe', 'getent passwd ' ~ username) != ""
+
+

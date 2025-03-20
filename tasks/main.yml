@@ -1,0 +1,55 @@
+---
+# tasks file for deploy_tls_certs
+
+- name: create ssl-cert group
+  group:
+    name: ssl-cert
+    state: present
+
+- name: Set permissions and owner for /etc/ssl/private
+  file:
+    path: /etc/ssl/private
+    owner: root
+    group: ssl-cert
+    mode: "0750"
+
+- name: Include tasks to add users to ssl-cert group
+  include_tasks: sslcert_users.yml
+  loop: "{{ tls_sslcert_users }}"
+  loop_control:
+    loop_var: username
+
+- name: Copy SSL/TLS certificates to server
+  become: true
+  copy:
+    src: "{{tls_src_cert_dir}}/{{ item }}"
+    dest: "{{tls_dst_cert_dir}}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - "{{ansible_ssh_host}}.crt"
+    - "{{tls_ca_file}}"
+  notify:
+    - update ca store ubuntu
+
+- name: Copy SSL/TLS private key
+  become: true
+  copy:
+    src: "{{tls_src_priv_dir}}/{{ item }}"
+    dest: "{{tls_dst_priv_dir}}/{{ item }}"
+    owner: root
+    group: ssl-cert
+    mode: 0640
+  with_items:
+    - "{{ansible_ssh_host}}.key"
+
+- name: Create Symlinks for host
+  file:
+    src: "/etc/ssl/{{item.value}}"
+    dest: "/etc/ssl/{{item.key}}"
+    state: link
+  with_dict:
+    "certs/host.crt": "certs/{{ansible_ssh_host}}.crt"
+    "private/host.key": "private/{{ansible_ssh_host}}.key"
+
